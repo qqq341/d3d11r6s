@@ -125,6 +125,7 @@ void InitHook()
 {
 	OutputDebugString("\n[DLL] Starting Hooking Process \n");
 
+	// pointer chain to the swapchain of r6s
 	DWORD64 r6base = (DWORD64)GetModuleHandleA(NULL);
 	DWORD64 swapchainptrtmp = *(DWORD64*)(r6base + 0x5268280);
 	DWORD64 swapchainptrtmp2 = *(DWORD64*)(swapchainptrtmp + 0x780);
@@ -136,6 +137,7 @@ void InitHook()
 	Hooks::oPresent = reinterpret_cast<tD3D11Present>(pSwapChainVT[8]);
 
 	MH_STATUS dbg;
+	// Minhook hooking library for hooking the present
 	dbg = MH_Initialize();
 	dbg = MH_CreateHook(
 		(void*) pSwapChainVT[8],														

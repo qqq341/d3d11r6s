@@ -55,7 +55,7 @@ HRESULT D3D11StateSaver::saveCurrentState(ID3D11DeviceContext* pContext)
 			m_pContext->DSGetShader(&m_pDS, m_pDSClassInstances, &m_numDSClassInstances);
 		}
 	}
-
+	//
 	m_pContext->IAGetVertexBuffers(0, 1, &m_pVB, &m_vertexStride, &m_vertexOffset);
 
 	m_pContext->IAGetIndexBuffer(&m_pIndexBuffer, &m_indexFormat, &m_indexOffset);

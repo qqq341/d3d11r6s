@@ -311,7 +311,7 @@ float D3D11Renderer::GetWidth()
 }
 
 float D3D11Renderer::GetHeight()
-{
+{//
 	D3D11_VIEWPORT vp;
 	UINT nvp = 1;
 	this->deviceContext->RSGetViewports(&nvp, &vp);

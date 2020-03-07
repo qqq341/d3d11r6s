@@ -20,7 +20,7 @@ DllMain(
 
 
 	InitHook();
-	
+	// call hook function
 
 	return true;
 }

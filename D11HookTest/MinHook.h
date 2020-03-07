@@ -140,7 +140,7 @@ extern "C" {
     //                    This parameter can be NULL.
     MH_STATUS WINAPI MH_CreateHookApiEx(
         LPCWSTR pszModule, LPCSTR pszProcName, LPVOID pDetour, LPVOID *ppOriginal, LPVOID *ppTarget);
-
+	//y
     // Removes an already created hook.
     // Parameters:
     //   pTarget [in] A pointer to the target function.

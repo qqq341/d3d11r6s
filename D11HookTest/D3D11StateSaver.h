@@ -52,4 +52,4 @@ public:
 	HRESULT saveCurrentState(ID3D11DeviceContext* pContext);
 	HRESULT restoreSavedState();
 	void releaseSavedState();
-};
+};//z
