@@ -26,6 +26,8 @@ bool D3D11Renderer::Initialize()
 
 
 
+
+
 	__sprintf(bufferdx, "\n[DLL] GetD3DCompiler() = %l ", GetD3DCompiler(), "\n"); OutputDebugStringA(bufferdx);
 	typedef HRESULT(__stdcall* D3DCompile_t)(LPCVOID pSrcData, SIZE_T SrcDataSize, LPCSTR pSourceName, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude, LPCSTR pEntrypoint, LPCSTR pTarget, UINT Flags1, UINT Flags2, ID3DBlob** ppCode, ID3DBlob* ppErrorMsgs);
 	D3DCompile_t myD3DCompile = (D3DCompile_t)GetProcAddress(GetD3DCompiler(), "D3DCompile");
@@ -97,8 +99,22 @@ bool D3D11Renderer::Initialize()
 	if (FAILED(hr))
 		return false;
 	OutputDebugStringA("[DLL] CreateBlendState \n");
+
+
+	ID3D11Texture2D* pBackBuffer;
+	hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);//This = Swapchain
+	if (FAILED(hr))
+		return false;
+	OutputDebugStringA("[DLL] GetBuffer \n");
+	ID3D11RenderTargetView* pRTV;
+	hr = device->CreateRenderTargetView(pBackBuffer, NULL, &pRTV);
+	if (FAILED(hr))
+		return false;
+	OutputDebugStringA("[DLL] CreateRenderTargetView \n");
+	deviceContext->OMSetRenderTargets(1, &pRTV, NULL);
 	return true;
 	
+
 }
 
 void D3D11Renderer::FillRect(float x, float y, float w, float h, Color color)
