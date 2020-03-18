@@ -60,8 +60,8 @@ public:
 	bool restoreState = false;
 public:
 
-
-
+	void PostRender();
+	void PreRender();
 	bool Initialize();
 	void FillRect(float x, float y, float w, float h, Color color);
 	void DrawLine(float x1, float y1, float x2, float y2, Color color);

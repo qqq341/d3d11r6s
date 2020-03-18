@@ -41,7 +41,7 @@ HRESULT __stdcall Hooks::hkD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInt
 {
 	if (!bOnce)
 	{
-		OutputDebugString("\n[DLL] Initializing Renderer \n");
+		//OutputDebugString("\n[DLL] Initializing Renderer \n");
 		// Initialize
 		renderer.swapChain = pSwapChain;
 		renderer.device = NULL;
@@ -94,12 +94,12 @@ HRESULT __stdcall Hooks::hkD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInt
 			renderer.stateSaver.m_pDSClassInstances[i] = NULL;
 		}
 
-		OutputDebugString("\n[DLL] Initializing Renderer 2 \n");
+		//OutputDebugString("\n[DLL] Initializing Renderer 2 \n");
 		if (!renderer.Initialize()) {
-			OutputDebugString("\n[DLL] Initializing Renderer Failed \n");
+		//	OutputDebugString("\n[DLL] Initializing Renderer Failed \n");
 		}
 		else {
-			OutputDebugString("\n[DLL] Initializing Renderer Worked \n");
+		//	OutputDebugString("\n[DLL] Initializing Renderer Worked \n");
 		}
 
 
@@ -107,15 +107,13 @@ HRESULT __stdcall Hooks::hkD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInt
 		bOnce = true;
 	}
 
+	renderer.PreRender();
 	renderer.BeginScene();
-
-
-	renderer.FillRect(200.f, 200.f, 300.f, 200.f, Color(255.f, 255.f, 0.f, 0.f));
 	renderer.DrawLine(200.f, 200.f, 300.f, 200.f, Color(255.f, 255.f, 0.f, 0.f));
 	renderer.DrawLine(300.f, 200.f, 300.f, 300.f, Color(255.f, 255.f, 0.f, 0.f));
 	renderer.DrawLine(300.f, 300.f, 200.f, 300.f, Color(255.f, 255.f, 0.f, 0.f));
 	renderer.DrawLine(200.f, 200.f, 200.f, 300.f, Color(255.f, 255.f, 0.f, 0.f));
-
+	renderer.PostRender();
 	renderer.EndScene();
 	return Hooks::oPresent(pSwapChain, SyncInterval, Flags);
 }
@@ -123,12 +121,12 @@ HRESULT __stdcall Hooks::hkD3D11Present(IDXGISwapChain* pSwapChain, UINT SyncInt
 
 void InitHook()
 {
-	OutputDebugString("\n[DLL] Starting Hooking Process \n");
+	//OutputDebugString("\n[DLL] Starting Hooking Process \n");
 
 	// pointer chain to the swapchain of r6s
 	DWORD64 r6base = (DWORD64)GetModuleHandleA(NULL);
-	DWORD64 swapchainptrtmp = *(DWORD64*)(r6base + 0x5268280);
-	DWORD64 swapchainptrtmp2 = *(DWORD64*)(swapchainptrtmp + 0x780);
+	DWORD64 swapchainptrtmp = *(DWORD64*)(r6base + 0x5399A08);
+	DWORD64 swapchainptrtmp2 = *(DWORD64*)(swapchainptrtmp + 0x790);
 	DWORD64 swapchainptr = *(DWORD64*)(swapchainptrtmp2 + 0x28);
 	DWORD_PTR* pSwapChainVT = reinterpret_cast<DWORD_PTR*>(swapchainptr);
 	pSwapChainVT = reinterpret_cast<DWORD_PTR*>(pSwapChainVT[0]);

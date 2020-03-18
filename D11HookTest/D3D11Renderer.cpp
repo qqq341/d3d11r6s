@@ -2,9 +2,23 @@
 #include "_sprintf.h"
 char bufferdx[128];
 
-
-
-
+ID3D11Texture2D* pBackBuffer;
+void D3D11Renderer::PreRender() {
+	HRESULT hrt;
+	hrt = this->swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);//This = Swapchain
+	//if (FAILED(hrt))
+	//	OutputDebugStringA("Swapchain get buffer failed in PreRender");
+	ID3D11RenderTargetView* pRTV;
+	hrt = this->device->CreateRenderTargetView(pBackBuffer, NULL, &pRTV);
+	//if (FAILED(hrt))
+	//	OutputDebugStringA("CreateRenderTargetView failed in PreRender");
+	this->deviceContext->OMSetRenderTargets(1, &pRTV, NULL);
+}
+void D3D11Renderer::PostRender() {
+	D3D11_TEXTURE2D_DESC backBufferDesc;
+	pBackBuffer->GetDesc(&backBufferDesc);
+	pBackBuffer->Release();
+}
 bool D3D11Renderer::Initialize()
 {
 	HRESULT hr;
@@ -12,28 +26,28 @@ bool D3D11Renderer::Initialize()
 	if (!this->swapChain)
 		return false;
 
-	__sprintf(bufferdx, "\n[DLL] swapChain = %l ", this->swapChain, "\n"); OutputDebugStringA(bufferdx);
+	//__sprintf(bufferdx, "\n[DLL] swapChain = %l ", this->swapChain, "\n"); OutputDebugStringA(bufferdx);
 
 	this->swapChain->GetDevice(__uuidof(this->device), (void**)&this->device);
 	if (!this->device)
 		return false;
-	__sprintf(bufferdx, "\n[DLL] device = %l ", this->device, "\n"); OutputDebugStringA(bufferdx);
+	//__sprintf(bufferdx, "\n[DLL] device = %l ", this->device, "\n"); OutputDebugStringA(bufferdx);
 
 	this->device->GetImmediateContext(&this->deviceContext);
 	if (!this->deviceContext)
 		return false;
-	__sprintf(bufferdx, "\n[DLL] deviceContext = %l ", this->deviceContext, "\n"); OutputDebugStringA(bufferdx);
+	//__sprintf(bufferdx, "\n[DLL] deviceContext = %l ", this->deviceContext, "\n"); OutputDebugStringA(bufferdx);
 
 
 
 
 
-	__sprintf(bufferdx, "\n[DLL] GetD3DCompiler() = %l ", GetD3DCompiler(), "\n"); OutputDebugStringA(bufferdx);
+	//__sprintf(bufferdx, "\n[DLL] GetD3DCompiler() = %l ", GetD3DCompiler(), "\n"); OutputDebugStringA(bufferdx);
 	typedef HRESULT(__stdcall* D3DCompile_t)(LPCVOID pSrcData, SIZE_T SrcDataSize, LPCSTR pSourceName, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude, LPCSTR pEntrypoint, LPCSTR pTarget, UINT Flags1, UINT Flags2, ID3DBlob** ppCode, ID3DBlob* ppErrorMsgs);
 	D3DCompile_t myD3DCompile = (D3DCompile_t)GetProcAddress(GetD3DCompiler(), "D3DCompile");
 	if (!myD3DCompile)
 		return false;
-	OutputDebugStringA("[DLL] myD3DCompile \n");
+	//OutputDebugStringA("[DLL] myD3DCompile \n");
 	
 
 
@@ -41,14 +55,14 @@ bool D3D11Renderer::Initialize()
 	hr = myD3DCompile(D3D11FillShader, sizeof(D3D11FillShader), NULL, NULL, NULL, "VS", "vs_4_0", 0, 0, &VS, NULL);
 	if (FAILED(hr))
 		return false;
-	OutputDebugStringA("[DLL] D3D11FillShader \n");
+	//OutputDebugStringA("[DLL] D3D11FillShader \n");
 	hr = this->device->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &this->mVS);
 	if (FAILED(hr))
 	{
 		SAFE_RELEASE(VS);
 		return false;
 	}
-	OutputDebugStringA("[DLL] CreateVertexShader \n");
+	//OutputDebugStringA("[DLL] CreateVertexShader \n");
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -59,17 +73,17 @@ bool D3D11Renderer::Initialize()
 	SAFE_RELEASE(VS);
 	if (FAILED(hr))
 		return false;
-	OutputDebugStringA("[DLL] CreateInputLayout \n");
+	//OutputDebugStringA("[DLL] CreateInputLayout \n");
 	myD3DCompile(D3D11FillShader, sizeof(D3D11FillShader), NULL, NULL, NULL, "PS", "ps_4_0", 0, 0, &PS, NULL);
 	if (FAILED(hr))
 		return false;
-	OutputDebugStringA("[DLL] D3D11FillShader2 \n");
+	//OutputDebugStringA("[DLL] D3D11FillShader2 \n");
 	hr = this->device->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &this->mPS);
 	if (FAILED(hr))
 	{
 		SAFE_RELEASE(PS);
 		return false;
-	}	OutputDebugStringA("[DLL] CreatePixelShader \n");
+	}//	OutputDebugStringA("[DLL] CreatePixelShader \n");
 
 	D3D11_BUFFER_DESC bufferDesc;
 
@@ -82,7 +96,7 @@ bool D3D11Renderer::Initialize()
 	hr = this->device->CreateBuffer(&bufferDesc, NULL, &this->mVertexBuffer);
 	if (FAILED(hr))
 		return false;
-	OutputDebugStringA("[DLL] CreateBuffer \n");
+	//OutputDebugStringA("[DLL] CreateBuffer \n");
 	D3D11_BLEND_DESC blendStateDescription;
 	ZeroMemory(&blendStateDescription, sizeof(blendStateDescription));
 
@@ -98,20 +112,9 @@ bool D3D11Renderer::Initialize()
 	hr = this->device->CreateBlendState(&blendStateDescription, &this->transparency);
 	if (FAILED(hr))
 		return false;
-	OutputDebugStringA("[DLL] CreateBlendState \n");
+//	OutputDebugStringA("[DLL] CreateBlendState \n");
 
 
-	ID3D11Texture2D* pBackBuffer;
-	hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);//This = Swapchain
-	if (FAILED(hr))
-		return false;
-	OutputDebugStringA("[DLL] GetBuffer \n");
-	ID3D11RenderTargetView* pRTV;
-	hr = device->CreateRenderTargetView(pBackBuffer, NULL, &pRTV);
-	if (FAILED(hr))
-		return false;
-	OutputDebugStringA("[DLL] CreateRenderTargetView \n");
-	deviceContext->OMSetRenderTargets(1, &pRTV, NULL);
 	return true;
 	
 
@@ -228,7 +231,7 @@ void D3D11Renderer::DrawLine(float x1, float y1, float x2, float y2, Color color
 
 	if (this->deviceContext == NULL) {
 
-		OutputDebugStringA("deviceContext failed null");
+		//OutputDebugStringA("deviceContext failed null");
 		return;
 	}
 	int a = color.A & 0xff;
@@ -252,7 +255,7 @@ void D3D11Renderer::DrawLine(float x1, float y1, float x2, float y2, Color color
 	D3D11_MAPPED_SUBRESOURCE mapData;
 
 	if (FAILED(this->deviceContext->Map(this->mVertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &mapData))) {
-		OutputDebugStringA("mapping failed");
+	//	OutputDebugStringA("mapping failed");
 		return;
 	}
 	v = (COLOR_VERTEX*)mapData.pData;
@@ -340,7 +343,7 @@ void D3D11Renderer::BeginScene()
 	if (SUCCEEDED(this->stateSaver.saveCurrentState(this->deviceContext)))
 		this->restoreState = true;
 	else
-		OutputDebugStringA("Saving state failed");
+	//	OutputDebugStringA("Saving state failed");
 
 
 	this->deviceContext->IASetInputLayout(this->mInputLayout);
@@ -350,5 +353,5 @@ void D3D11Renderer::EndScene()
 {
 	if (this->restoreState)
 		if (!SUCCEEDED(this->stateSaver.restoreSavedState()))
-			OutputDebugStringA("Restoring saved state Failed");
+			return;
 }
